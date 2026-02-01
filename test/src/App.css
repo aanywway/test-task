@@ -42,7 +42,7 @@
 }
 .LanguageDropdown {
   position: absolute;
-  margin: 45px 0px 0px 45px;
+  margin: 220px 45px 0px 45px;
   background-color: #F8F7F7;
   width: 35px;
   display: flex;
@@ -54,7 +54,18 @@
 }
 .SearchField {
   border-radius: 7px;
-  width: 200px;
+  width: 490px;
+  margin: 0 auto;
+  padding: 0 20px;
+  font-size: 0.8rem;
+  border: 1px solid #D0CFCE;
+}
+.SearchField:focus::placeholder {
+  transition: opacity 0.45s ease;
+  opacity: 0;
+}
+.SearchField[type="search"]::-webkit-search-cancel-button {
+  display: none;
 }
 .ContainerContent {
   display: flex;

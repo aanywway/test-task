@@ -1,12 +1,14 @@
 import './App.css';
 import { useSpring, animated } from 'react-spring';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
 
 function Number({ n }) {
   const { number } = useSpring({
     from: { number: 0 },
     number: n,
-    delay: 1000,
+    delay: 100,
     config: { mass: 1, tension: 20, friction: 10},
   });
   return <animated.span>{number.to((n) => n.toFixed(2))}</animated.span>
@@ -19,11 +21,41 @@ function App() {
   const [color, setColor] = useState('black');
   const [background, setBackground] = useState('#F8F7F7');
 
+  const maxResolution = useMediaQuery({ minWidth: 1500 });
+
+  useEffect(() => {
+    if(!maxResolution && CartIsVisible) {
+      setCartVisible(!CartIsVisible);
+      setColor('black');
+      setBackground('#F8F7F7')
+    }
+  });
+
   const HandleClick = () => {
-    setCartVisible(!CartIsVisible);
-    setColor(color === 'black' ? 'white' : 'black');
-    setBackground(background === '#F8F7F7' ? '#272727' : '#F8F7F7')
+    if (maxResolution) {
+      setCartVisible(!CartIsVisible);
+      setColor(color === 'black' ? 'white' : 'black');
+      setBackground(background === '#F8F7F7' ? '#272727' : '#F8F7F7');
+    }
   }
+
+  const LanguageRef = useRef(null);
+  const ButtonRef = useRef(null);
+
+  useEffect(() => {
+    const HandleClickOutside = (e) => {
+    const isClickOnList = LanguageRef.current?.contains(e.target);
+    const isClickOnButton = ButtonRef.current?.contains(e.target);
+
+    if (!isClickOnList && !isClickOnButton) {
+      setLanguageOpen(false);
+    }
+  }
+    document.addEventListener('mousedown', HandleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', HandleClickOutside);
+    }
+  }, [false])
 
   return (
     <div className="App">
@@ -43,24 +75,28 @@ function App() {
                 <circle cx="18" cy="18" r="2" fill="currentColor"></circle>
               </svg>
             </div>
-            <div className='Language' onClick={() => setLanguageOpen(!LanguageIsOpen)}>
+            <div className='Language' onClick={() => setLanguageOpen(!LanguageIsOpen)} ref={ButtonRef}>
               <p><b>RU</b></p>
+              <AnimatePresence>
+              {LanguageIsOpen && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1}} exit={{ opacity: 0}} transition={{ duration: '0.75'}} className='LanguageDropdown' ref={LanguageRef}>
+                  <p><b>EN</b></p>
+                  <p><b>PL</b></p>
+                  <p><b>GR</b></p>
+                </motion.div>
+              )}
+              </AnimatePresence>
             </div>
-            {LanguageIsOpen && (
-              <div className='LanguageDropdown'>
-                <p><b>EN</b></p>
-                <p><b>PL</b></p>
-                <p><b>GR</b></p>
-              </div>
-            )}
             <div className='Search' onClick={() => setSearchOpen(!SearchIsOpen)}>
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M7.89062 0.00976562C11.8554 0.210867 15.0086 3.48918 15.0088 7.50391L14.999 7.89062C14.9198 9.45317 14.3598 10.8876 13.4678 12.0547L17.6348 16.2217L17.7031 16.2969C18.0237 16.6897 18.001 17.2695 17.6348 17.6357C17.2686 18.0019 16.6887 18.0247 16.2959 17.7041L16.2207 17.6357L12.0547 13.4697C10.792 14.4343 9.21538 15.0088 7.50391 15.0088L7.11816 14.999C3.28108 14.8046 0.204387 11.7277 0.00976562 7.89062L0 7.50391C0.00016827 3.35969 3.35969 0.000168274 7.50391 0L7.89062 0.00976562ZM7.50391 2C4.46426 2.00017 2.00017 4.46426 2 7.50391C2 10.5437 4.46415 13.0086 7.50391 13.0088C10.5438 13.0088 13.0088 10.5438 13.0088 7.50391C13.0086 4.46415 10.5437 2 7.50391 2Z" fill="#0F0F0F"/>
               </svg>
             </div>
+            <AnimatePresence>
             {SearchIsOpen && (
-              <input type='search' className='SearchField'></input>
+              <motion.input initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: '0.75'}}  type='search' className='SearchField' placeholder='О чём вы думаете?'></motion.input>
             )}
+            </AnimatePresence>
           </div>
           <div className='NavbarRightSide'>
             <div className='Cart' onClick={HandleClick} style={{color: color, backgroundColor: background}}>
@@ -73,16 +109,18 @@ function App() {
         </div>
         <div className='ContainerContent'>
           <div className='Content'></div>
-        {CartIsVisible && (
-          <div className='ContentCart'>
-            <p>Корзина</p>
-            <div onClick={HandleClick}>
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="15" height="15" viewBox="0 0 50 50">
-                <path d="M 7.71875 6.28125 L 6.28125 7.71875 L 23.5625 25 L 6.28125 42.28125 L 7.71875 43.71875 L 25 26.4375 L 42.28125 43.71875 L 43.71875 42.28125 L 26.4375 25 L 43.71875 7.71875 L 42.28125 6.28125 L 25 23.5625 Z"></path>
-              </svg>
-            </div>
-          </div>
-        )}
+            <AnimatePresence>
+            {CartIsVisible && (
+              <motion.div initial={{ y: -50}} animate={{ y: 0}} exit={{ y: -50 }} transition={{ type: 'tween', duration: 0.75, ease: 'easeInOut'}} className='ContentCart'>
+                <p>Корзина</p>
+                <div onClick={HandleClick}>
+                  <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="15" height="15" viewBox="0 0 50 50">
+                    <path d="M 7.71875 6.28125 L 6.28125 7.71875 L 23.5625 25 L 6.28125 42.28125 L 7.71875 43.71875 L 25 26.4375 L 42.28125 43.71875 L 43.71875 42.28125 L 26.4375 25 L 43.71875 7.71875 L 42.28125 6.28125 L 25 23.5625 Z"></path>
+                  </svg>
+                </div>
+              </motion.div>
+            )}
+            </AnimatePresence>
         </div>
       </div>
     </div>
