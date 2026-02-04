@@ -2,7 +2,9 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "framer-motion": "^12.31.0",
     "npx": "^10.2.2",
+    "react-responsive": "^10.0.1",
     "react-spring": "^10.0.3"
   },
   "name": "test",

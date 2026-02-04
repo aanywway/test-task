@@ -2,7 +2,7 @@ import './App.css';
 import { useSpring, animated } from 'react-spring';
 import { useState, useEffect, useRef } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Number({ n }) {
   const { number } = useSpring({
@@ -29,7 +29,7 @@ function App() {
       setColor('black');
       setBackground('#F8F7F7')
     }
-  });
+  }, [maxResolution, CartIsVisible]);
 
   const HandleClick = () => {
     if (maxResolution) {
@@ -55,7 +55,7 @@ function App() {
     return () => {
       document.removeEventListener('mousedown', HandleClickOutside);
     }
-  }, [false])
+  })
 
   return (
     <div className="App">
